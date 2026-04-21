@@ -4,6 +4,8 @@ from io import BytesIO
 import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from ultralytics import YOLO
 
@@ -11,13 +13,20 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # later replace with your Vercel domain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 model = YOLO("model.pt")
+
+
+@app.get("/")
+def index():
+    return FileResponse("static/index.html")
 
 
 @app.get("/health")
